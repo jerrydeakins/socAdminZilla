@@ -6,6 +6,11 @@
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   const uid=()=>crypto.randomUUID();
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function setHTML(el,html){
+    const doc=new DOMParser().parseFromString(String(html??""),"text/html");
+    el.replaceChildren(...Array.from(doc.body.childNodes));
+  }
   const norm=s=>(s||"").replace(/\u00a0/g," ").replace(/\n[ \t]+/g,"\n").trim();
 
   const DEFAULT_DB={
@@ -252,12 +257,12 @@
     if(!root){root=document.createElement("div");root.id=ROOT_ID;}
     mountRoot(root);
     removePanel();
-    root.innerHTML=`
+    setHTML(root,`
       <div id="socadmin-bar">
         <span id="socadmin-brand">SocAdmin</span>
         ${["posts","moderation","publication","archive","settings"].map((x,i)=>`<button class="sa-tab ${state.open&&state.active===x?"active":""}" data-tab="${x}">${["Посты","Модерация","Публикация","Архив","Настройки"][i]}</button>`).join("")}
         <button id="socadmin-collapse" title="Свернуть">⌃</button>
-      </div>`;
+      </div>`);
     root.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
       const tab=b.dataset.tab;
       if(state.open && state.active===tab){
@@ -279,7 +284,7 @@
     if(p){
       p.classList.toggle("sa-publication-panel",state.active==="publication");
       p.classList.toggle("sa-posts-panel",state.active==="posts");
-      p.innerHTML=content;
+      setHTML(p,content);
       positionPanel();
     }
   }
@@ -306,7 +311,7 @@
       </div>
     </div>`);
     const sources=document.getElementById("sa-sources");
-    sources.innerHTML=state.db.sources.map(s=>{const logo=communityLogo(s.url);return `<div class="sa-card sa-source-card ${state.selectedSource===s.id?"selected":""}" data-source="${s.id}"><div class="sa-source-logo-wrap">${logo?`<img class="sa-source-logo" src="${esc(logo)}" alt="">`:`<div class="sa-source-logo-placeholder">VK</div>`}</div><div class="sa-source-info"><div class="sa-meta">${esc(s.name||s.alias)}</div><div class="sa-muted">${esc(s.url)}</div></div></div>`}).join("");
+    setHTML(sources,state.db.sources.map(s=>{const logo=communityLogo(s.url);return `<div class="sa-card sa-source-card ${state.selectedSource===s.id?"selected":""}" data-source="${s.id}"><div class="sa-source-logo-wrap">${logo?`<img class="sa-source-logo" src="${esc(logo)}" alt="">`:`<div class="sa-source-logo-placeholder">VK</div>`}</div><div class="sa-source-info"><div class="sa-meta">${esc(s.name||s.alias)}</div><div class="sa-muted">${esc(s.url)}</div></div></div>`}).join(""));
     sources.querySelectorAll("[data-source]").forEach(x=>x.onclick=()=>{state.selectedSource=x.dataset.source;renderPostsPanel();});
     document.getElementById("sa-add-source").onclick=async()=>{
       let u=document.getElementById("sa-source-url").value.trim();
@@ -329,7 +334,7 @@
 
   function renderFeed(posts){
     const box=document.getElementById("sa-feed");if(!box)return;
-    box.innerHTML=(posts||[]).map(p=>`<div class="sa-card"><div class="sa-meta">${esc(p.author)} · ${esc(p.date)}</div><div class="sa-text">${esc(p.text||"(без текста)")}</div>${renderImages(p.images)}</div>`).join("");
+    setHTML(box,(posts||[]).map(p=>`<div class="sa-card"><div class="sa-meta">${esc(p.author)} · ${esc(p.date)}</div><div class="sa-text">${esc(p.text||"(без текста)")}</div>${renderImages(p.images)}</div>`).join(""));
   }
 
   function clampInt(value,min,max,fallback){
@@ -390,9 +395,9 @@
   function renderModerationEditor(p){
     const panel=document.getElementById("sa-editor");
     if(!panel)return;
-    if(!p){panel.innerHTML=`<div class="sa-panel sa-empty"><div class="sa-title">Редактор</div><div class="sa-muted">Выбери пост слева.</div></div>`;return;}
+    if(!p){setHTML(panel,`<div class="sa-panel sa-empty"><div class="sa-title">Редактор</div><div class="sa-muted">Выбери пост слева.</div></div>`);return;}
     const images=Array.isArray(p.images)?p.images:[];
-    panel.innerHTML=`<div class="sa-panel sa-editor">
+    setHTML(panel,`<div class="sa-panel sa-editor">
       <div class="sa-title">Редактор поста</div>
       <div class="sa-meta">${esc(p.author)} · ${esc(p.date)}</div>
       <label>Целевое сообщество<select id="sa-target-community" class="sa-select">${(state.db.settings.homeCommunities||[]).map(x=>`<option value="${esc(x)}" ${x===String(p.targetCommunity||"")?"selected":""}>${esc(x)}</option>`).join("")}</select></label>
@@ -412,7 +417,7 @@
       <div id="sa-edit-images" class="sa-editor-images">${images.map((img,i)=>{const src=typeof img==="string"?img:img?.src; if(!src)return ""; return `<div class="sa-editor-image"><img src="${esc(src)}" loading="lazy"><button class="sa-btn sa-danger" data-del-img="${i}" title="Удалить изображение">×</button></div>`;}).join("")}</div>
       <div class="sa-image-add-row"><input id="sa-add-image-url" class="sa-input" placeholder="URL изображения"><button id="sa-add-image" class="sa-add-image-btn" type="button" title="Добавить изображение" aria-label="Добавить изображение"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M416 208H272V64c0-17.7-14.3-32-32-32h-32c-17.7 0-32 14.3-32 32v144H32c-17.7 0-32 14.3-32 32v32c0 17.7 14.3 32 32 32h144v144c0 17.7 14.3 32 32 32h32c17.7 0 32-14.3 32-32V304h144c17.7 0 32-14.3 32-32v-32c0-17.7-14.3-32-32-32z"/></svg></button></div>
       <div class="sa-row"><button id="sa-save-post" class="sa-btn">Сохранить</button><button id="sa-publish-post" class="sa-btn">Опубликовать</button><button id="sa-delete-post" class="sa-btn sa-danger">Удалить</button><span id="sa-editor-status" class="sa-muted"></span></div>
-    </div>`;
+    </div>`);
     const textArea=document.getElementById("sa-edit-text");
     const popEmoji=document.getElementById("sa-pop-emoji");
     const popHash=document.getElementById("sa-pop-hashtag");
@@ -429,7 +434,7 @@
       setArrow(key,true);
     };
     const insertAtCursor=(value)=>{const start=textArea.selectionStart,end=textArea.selectionEnd;const before=textArea.value.slice(0,start),after=textArea.value.slice(end);textArea.value=before+value+after;textArea.focus();const pos=start+value.length;textArea.setSelectionRange(pos,pos);};
-    const fillPop=(pop,items,fn,empty)=>{pop.innerHTML=items.length?items.map((x,i)=>`<button type="button" class="sa-btn sa-tool-item" data-tool-item="${i}">${esc(typeof x==="string"?x:(x?.name||x?.text||""))}</button>`).join(""):`<span class="sa-muted">${empty}</span>`;pop.querySelectorAll("[data-tool-item]").forEach(b=>b.onclick=()=>{fn(items[+b.dataset.toolItem]);closePops();});};
+    const fillPop=(pop,items,fn,empty)=>{setHTML(pop,items.length?items.map((x,i)=>`<button type="button" class="sa-btn sa-tool-item" data-tool-item="${i}">${esc(typeof x==="string"?x:(x?.name||x?.text||""))}</button>`).join(""):`<span class="sa-muted">${empty}</span>`);pop.querySelectorAll("[data-tool-item]").forEach(b=>b.onclick=()=>{fn(items[+b.dataset.toolItem]);closePops();});};
     document.getElementById("sa-tool-emoji").onclick=()=>togglePop("emoji",popEmoji,state.db.emoji||[],x=>insertAtCursor(String(x)),"Нет сохранённых emoji");
     document.getElementById("sa-tool-hashtag").onclick=()=>togglePop("hashtag",popHash,state.db.hashtags||[],x=>insertAtCursor((textArea.value && !/[\s]$/.test(textArea.value)?" ":"")+String(x)),"Нет сохранённых хэштегов");
     document.getElementById("sa-tool-template").onclick=()=>togglePop("template",popTpl,state.db.templates||[],x=>insertAtCursor(String(x?.text??x??"")),"Нет сохранённых шаблонов");
@@ -481,11 +486,11 @@
     state.selectedPost=selected?postKey(selected):null;
     panelShell(`<div class="sa-mod-grid"><div class="sa-panel"><div class="sa-title">Зона модерации</div><div id="sa-mod" class="sa-list sa-mod-list"></div></div><div id="sa-editor"></div></div>`);
     const box=document.getElementById("sa-mod");
-    box.innerHTML=items.length?items.map(p=>{
+    setHTML(box,items.length?items.map(p=>{
       const key=postKey(p);
       const queued=(state.db.publication||[]).some(x=>postKey(x)===key);
       return `<div class="sa-card ${key===state.selectedPost?"selected":""} ${queued?"sa-queued":""}" data-post="${esc(key)}">${renderModerationPreview(p)}${queued?`<div class="sa-queued-note">✓ Отправлен в публикацию</div>`:""}</div>`;
-    }).join(""):`<div class="sa-empty sa-muted">В зоне модерации нет постов.</div>`;
+    }).join(""):`<div class="sa-empty sa-muted">В зоне модерации нет постов.</div>`);
     if(savedScrollTop) box.scrollTop=savedScrollTop;
     box.querySelectorAll("[data-post]").forEach(x=>x.onclick=()=>{state.selectedPost=x.dataset.post;renderModerationPanel(true);});
     renderModerationEditor(selected);
@@ -512,7 +517,7 @@
     const items=state.db.publication||[];
     panelShell(`<div class="sa-panel"><div class="sa-title">Публикация</div><div class="sa-muted">Посты, подготовленные к публикации. Кнопки копирования используются как временный способ публикации.</div><div id="sa-publication-list" class="sa-list sa-publication-list" style="margin-top:7px"></div></div>`);
     const box=document.getElementById("sa-publication-list");
-    box.innerHTML=items.length?items.map(p=>{
+    setHTML(box,items.length?items.map(p=>{
       const images=Array.isArray(p.images)?p.images:[];
       const first=images[0]&&(typeof images[0]==='string'?images[0]:images[0]?.src);
       const key=postKey(p);
@@ -539,7 +544,7 @@
           <span class="sa-muted" data-pub-status="${esc(key)}"></span>
         </div>
       </div>`;
-    }).join(''):`<div class="sa-empty sa-muted">Очередь публикации пуста.</div>`;
+    }).join(''):`<div class="sa-empty sa-muted">Очередь публикации пуста.</div>`);
 
     box.querySelectorAll('[data-auto-pub]').forEach(b=>b.onclick=async()=>{
       const key=b.dataset.autoPub;
@@ -556,7 +561,7 @@
 
         textField.focus();
         const text=String(p.text||'');
-        textField.innerHTML='';
+        textField.replaceChildren();
         const lines=text.split('\n');
         lines.forEach((line,i)=>{
           if(i)textField.appendChild(document.createElement('br'));
@@ -668,7 +673,7 @@
       <div class="sa-row"><input id="sa-new-template-name" class="sa-input" placeholder="Название шаблона"><textarea id="sa-new-template-text" class="sa-textarea" style="min-height:90px" placeholder="Текст шаблона"></textarea><button id="sa-add-template" class="sa-btn">Добавить</button></div>
     </div>`);
     const homes=state.db.settings.homeCommunities||[];
-    document.getElementById("sa-home-communities").innerHTML=homes.map((x,i)=>`<div class="sa-card"><b>${i===0?"По умолчанию: ":""}</b>${esc(x)} <button data-rhome="${i}" class="sa-btn sa-danger">×</button></div>`).join("")||`<div class="sa-muted">Домашние сообщества не добавлены.</div>`;
+    setHTML(document.getElementById("sa-home-communities"),homes.map((x,i)=>`<div class="sa-card"><b>${i===0?"По умолчанию: ":""}</b>${esc(x)} <button data-rhome="${i}" class="sa-btn sa-danger">×</button></div>`).join("")||`<div class="sa-muted">Домашние сообщества не добавлены.</div>`);
     document.getElementById("sa-add-home-community").onclick=async()=>{
       const v=document.getElementById("sa-new-home-community").value.trim();
       if(!isValidVKUrl(v)){alert("Укажи ссылку https://vk.ru/... или https://vk.com/...");return;}
@@ -681,9 +686,9 @@
       homes.splice(+b.dataset.rhome,1); state.db.settings.homeCommunities=homes; state.db.settings.homeCommunity=homes[0]||"";
       await save(); renderSettingsPanel();
     });
-    document.getElementById("sa-hashtags").innerHTML=state.db.hashtags.map((x,i)=>`<div class="sa-card">${esc(x)} <button data-rh="${i}" class="sa-btn sa-danger">×</button></div>`).join("");
-    document.getElementById("sa-emojis").innerHTML=state.db.emoji.map((x,i)=>`<div class="sa-card">${esc(x)} <button data-re="${i}" class="sa-btn sa-danger">×</button></div>`).join("");
-    document.getElementById("sa-templates").innerHTML=(state.db.templates||[]).map((x,i)=>`<div class="sa-card"><b>${esc(x.name||"Без названия")}</b><div class="sa-muted">${esc(String(x.text||"").slice(0,250))}</div><button data-rt="${i}" class="sa-btn sa-danger">×</button></div>`).join("")||`<div class="sa-muted">Шаблоны не добавлены.</div>`;
+    setHTML(document.getElementById("sa-hashtags"),state.db.hashtags.map((x,i)=>`<div class="sa-card">${esc(x)} <button data-rh="${i}" class="sa-btn sa-danger">×</button></div>`).join(""));
+    setHTML(document.getElementById("sa-emojis"),state.db.emoji.map((x,i)=>`<div class="sa-card">${esc(x)} <button data-re="${i}" class="sa-btn sa-danger">×</button></div>`).join(""));
+    setHTML(document.getElementById("sa-templates"),(state.db.templates||[]).map((x,i)=>`<div class="sa-card"><b>${esc(x.name||"Без названия")}</b><div class="sa-muted">${esc(String(x.text||"").slice(0,250))}</div><button data-rt="${i}" class="sa-btn sa-danger">×</button></div>`).join("")||`<div class="sa-muted">Шаблоны не добавлены.</div>`);
     document.getElementById("sa-export-settings").onclick=exportSettings;
     document.getElementById("sa-import-settings").onclick=()=>document.getElementById("sa-import-file").click();
     document.getElementById("sa-import-file").onchange=async e=>{
