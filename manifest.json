@@ -35,7 +35,12 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "socadmin@jerrydeakins.github.io"
+      "id": "socadmin@jerrydeakins.github.io",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
     }
   }
 }
