@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "SocAdmin",
+  "version": "1.0.0",
+  "description": "SocAdmin browser toolbar for VK.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://vk.com/*",
+    "https://vk.ru/*",
+    "https://*/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "action": {
+    "default_title": "SocAdmin — открыть на VK"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://vk.com/*",
+        "https://vk.ru/*"
+      ],
+      "js": [
+        "content/vk.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
