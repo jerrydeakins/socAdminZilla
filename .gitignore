@@ -1,6 +1,4 @@
-@"
 *.zip
 *.xpi
 .DS_Store
 Thumbs.db
-"@ | Set-Content .gitignore
