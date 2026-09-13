@@ -1,5 +1,5 @@
 import { state, ROOT_ID } from './state.js';
-import { load } from './storage.js';
+import { load, save } from './storage.js';
 import { render, positionPanel, alignVKHeader, mountRoot, renderPanel } from './ui.js';
 import { waitForCommunityAvatar, waitForPostContent, collectInThisTab } from './scraper.js';
 import { isValidVKUrl, clampInt } from './utils.js';
@@ -107,6 +107,32 @@ if (window.top === window.self) {
     render();
     renderPanel();
   }
+
+  let lastUrl = location.href;
+
+  async function handleNavigation() {
+    if (location.href === lastUrl) return;
+    lastUrl = location.href;
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await resumeReturnNavigation();
+  }
+
+  const originalPushState = history.pushState;
+  history.pushState = function (...args) {
+    const result = originalPushState.apply(this, args);
+    handleNavigation();
+    return result;
+  };
+
+  const originalReplaceState = history.replaceState;
+  history.replaceState = function (...args) {
+    const result = originalReplaceState.apply(this, args);
+    handleNavigation();
+    return result;
+  };
+
+  window.addEventListener("popstate", handleNavigation);
 
   (async () => {
     await load();

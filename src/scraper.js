@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { save } from './storage.js';
-import { norm, sleep, isValidVKUrl, clampInt } from './utils.js';
+import { norm, sleep, uid, isValidVKUrl, clampInt } from './utils.js';
 
 export function parseVKDate(value) {
 	let text = norm(value).toLowerCase().replace(/ё/g, "е");

@@ -100,6 +100,32 @@ export function downloadTextFile(filename, text) {
 export async function exportSettings() {
   downloadTextFile("socadmin-settings.json", JSON.stringify(settingsExportData(), null, 2));
 }
+
+export async function fetchMissingCommunityLogos() {
+  const urls = [];
+  const seen = new Set();
+
+  for (const item of state.db.sources || []) {
+    const key = normalizeCommunityUrl(item.url);
+    if (key && !communityLogo(key) && !seen.has(key)) {
+      seen.add(key);
+      urls.push(key);
+    }
+  }
+
+  for (const url of state.db.settings.homeCommunities || []) {
+    const key = normalizeCommunityUrl(url);
+    if (key && !communityLogo(key) && !seen.has(key)) {
+      seen.add(key);
+      urls.push(key);
+    }
+  }
+
+  for (const key of urls) {
+    await fetchCommunityLogo(key);
+  }
+}
+
 export async function importSettings(file) {
   const text = await file.text();
   let data;
