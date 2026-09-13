@@ -1,5 +1,5 @@
 import { state, ROOT_ID } from './state.js';
-import { esc, setHTML, uid, clampInt, isValidVKUrl, faIcon, postKey, publicationPreviewText, normalizeCommunityUrl } from './utils.js';
+import { esc, setHTML, uid, clampInt, isValidVKUrl, faIcon, postKey, publicationPreviewText } from './utils.js';
 import { save, communityLogo, fetchCommunityLogo, exportSettings, importSettings } from './storage.js';
 import { startFetch } from './scraper.js';
 import { showModal } from './ui/modal.js';
@@ -19,7 +19,7 @@ export function style() {
 #socadmin-panel.open{display:block}
 #socadmin-panel.sa-posts-panel{width:890px;box-sizing:border-box}#socadmin-panel.sa-publication-panel{width:322px;box-sizing:border-box;overflow-x:hidden}#socadmin-panel.sa-publication-panel .sa-panel{width:100%;box-sizing:border-box;overflow-x:hidden}
 .sa-grid{display:grid;grid-template-columns:360px 500px;gap:8px;align-items:start}.sa-mod-grid{display:grid;grid-template-columns:460px 500px;gap:8px;align-items:start}.sa-mod-list{max-height:calc(100vh - 150px);overflow:auto}.sa-editor{min-height:0}.sa-editor-images{display:flex;flex-wrap:wrap;gap:8px;margin:7px 0}.sa-editor-image{position:relative}.sa-editor-image img{display:block;max-width:150px;max-height:150px;object-fit:cover;border-radius:6px}.sa-editor-image button{position:absolute;right:3px;top:3px}.sa-empty{padding:12px;text-align:center}.sa-card-preview{display:flex;gap:8px;align-items:flex-start}.sa-card-thumb{width:92px;height:72px;flex:0 0 92px;object-fit:cover;border-radius:6px}.sa-card-preview-text{min-width:0}.sa-card-preview-text .sa-text{display:block;overflow:hidden}.sa-panel{min-height:0;background:rgba(250,250,250,.40);border:1px solid rgba(0,0,0,.10);border-radius:8px;padding:8px;min-width:0}.sa-title{font-weight:700;margin-bottom:7px}.sa-list{display:flex;flex-direction:column;gap:5px;max-height:calc(100vh - 150px);overflow:auto}.sa-publication-list{flex-direction:column;flex-wrap:nowrap;gap:10px;align-items:flex-start;max-height:none;overflow:visible}.sa-chip-list{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.sa-pub-card{position:relative;padding:0;overflow:hidden;width:280px;box-sizing:border-box}.sa-pub-card.sa-auto-active::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.58);z-index:20}.sa-auto-confirm{position:absolute;inset:0;z-index:21;display:flex;align-items:center;justify-content:center;gap:8px;pointer-events:none}.sa-auto-confirm[hidden]{display:none!important}.sa-auto-confirm button{pointer-events:auto;border:0;border-radius:6px;width:42px;height:34px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;box-shadow:0 2px 7px #0006}.sa-auto-confirm .sa-auto-ok{background:rgba(78,145,91,.92)}.sa-auto-confirm .sa-auto-ok:hover{background:rgba(66,130,79,.96)}.sa-auto-confirm .sa-auto-cancel{background:rgba(174,78,78,.92)}.sa-auto-confirm .sa-auto-cancel:hover{background:rgba(155,63,63,.96)}.sa-auto-confirm .sa-icon{width:17px;height:17px}.sa-pub-head{display:flex;align-items:center;gap:8px;padding:8px 9px;font-size:11px;font-weight:600}.sa-pub-sep{opacity:.5}.sa-pub-image{display:block;width:100%;max-height:360px;object-fit:contain;background:rgba(0,0,0,.04)}.sa-pub-body{padding:10px}.sa-pub-text{white-space:pre-wrap;line-height:1.45}.sa-pub-actions{display:flex;flex-direction:column;gap:7px;padding:8px 9px;border-top:1px solid rgba(0,0,0,.10)}.sa-pub-auto-row{display:flex;width:100%;justify-content:center}.sa-auto-btn{border:0;border-radius:7px;min-height:34px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;color:#fff;background:#69b97a;box-shadow:0 1px 2px #0002;font-weight:600;transition:transform .08s ease,background .15s ease,box-shadow .15s ease}.sa-auto-btn:hover{background:#5eab6e;box-shadow:0 2px 6px #0002}.sa-auto-btn:active{transform:translateY(1px)}.sa-auto-btn .sa-icon{width:15px;height:15px}.sa-pub-actions-left{display:flex;align-items:center;gap:6px}.sa-pub-button-row{display:flex;align-items:center;width:100%;gap:6px}.sa-pub-button-row>.sa-action-red{margin-left:auto}.sa-action-blue,.sa-action-orange,.sa-action-red{border:0;border-radius:6px;width:36px;height:34px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff}.sa-action-blue{background:#5b9bd5}.sa-action-orange{background:#e7a34b}.sa-action-red{background:#d96b6b}.sa-action-blue:hover{background:#4c8fc9}.sa-action-orange:hover{background:#db9436}.sa-action-red:hover{background:#c95b5b}.sa-icon{width:16px;height:16px;fill:currentColor}.sa-pub-actions>[data-pub-status]{min-height:16px;font-size:11px}
-.sa-queued{border-color:#e7a34b!important;box-shadow:0 0 0 1px rgba(231,163,75,.25)}.sa-queued-note{margin-top:5px;font-size:11px;font-weight:700;color:#b36b12}.sa-card{border:1px solid #ddd;border-radius:7px;padding:7px;background:rgba(255,255,255,.40);cursor:pointer}.sa-source-card{display:flex;align-items:center;padding:8px 10px;min-height:72px}.sa-source-logo-wrap{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding-right:16px}.sa-source-logo,.sa-source-logo-placeholder{width:48px;height:48px;border-radius:50%;object-fit:cover}.sa-source-logo-placeholder{display:flex;align-items:center;justify-content:center;background:rgba(128,128,128,.18);font-size:13px;font-weight:800;color:#777}.sa-mod-group{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}.sa-mod-group:last-child{margin-bottom:0}.sa-mod-group-head{display:flex;align-items:center;gap:10px;padding:8px 10px;min-height:70px;box-sizing:border-box;border:1px solid rgba(0,0,0,.12);border-radius:8px;background:rgba(255,255,255,.35)}.sa-mod-group-logo,.sa-mod-group-logo-placeholder{width:54px;height:54px;flex:0 0 54px;border-radius:50%;object-fit:cover}.sa-mod-group-logo-placeholder{display:flex;align-items:center;justify-content:center;background:rgba(128,128,128,.18);font-size:13px;font-weight:800;color:#777}.sa-mod-group-info{min-width:0;display:flex;flex-direction:column;gap:3px}.sa-mod-group-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sa-mod-group-url{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.7}.sa-mod-group-posts{display:flex;flex-direction:column;gap:5px;padding-left:8px}.sa-source-info{min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}.sa-images{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.sa-images img{display:block;max-width:180px;max-height:180px;width:auto;height:auto;object-fit:cover;border-radius:6px}.sa-card.selected{border-color:#1677ff}.sa-meta{font-size:10px;font-weight:700;color:#666;margin-bottom:3px}.sa-text{font-size:14px;white-space:pre-wrap}.sa-row{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}.sa-input,.sa-textarea,.sa-select{width:100%;box-sizing:border-box;border:1px solid #c8ccd1;border-radius:6px;padding:7px;background:#fff}.sa-textarea{min-height:264px;width:100%;max-width:100%;box-sizing:border-box;resize:vertical;font-size:14px}.sa-editor{overflow:hidden}.sa-editor-tools{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}.sa-tool-arrow{display:inline-block;margin-left:5px;font-size:11px;opacity:.75}.sa-image-add-row{display:flex;gap:6px;align-items:center;width:100%}.sa-image-add-row .sa-input{flex:1;min-width:0}.sa-add-image-btn{width:36px;height:36px;min-width:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:#72b886;color:#fff;cursor:pointer;box-shadow:0 1px 2px #0002}.sa-add-image-btn:hover{background:#63aa78}.sa-add-image-btn svg{width:15px;height:15px;fill:currentColor}.sa-tool-pop{display:none;position:absolute;z-index:10002;max-width:420px;max-height:220px;overflow:auto;padding:7px;border:1px solid #aaa;border-radius:7px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px #0003}.sa-tool-pop.open{display:flex;gap:4px;flex-wrap:wrap}.sa-tool-item{cursor:pointer}.sa-editor-tools-wrap{position:relative}.sa-btn{border:1px solid #c8ccd1;border-radius:6px;padding:7px 9px;background:#f3f5f7;cursor:pointer}.sa-danger{color:#a51c1c}.sa-muted{color:#70757d}
+.sa-queued{border-color:#e7a34b!important;box-shadow:0 0 0 1px rgba(231,163,75,.25)}.sa-queued-note{margin-top:5px;font-size:11px;font-weight:700;color:#b36b12}.sa-card{border:1px solid #ddd;border-radius:7px;padding:7px;background:rgba(255,255,255,.40);cursor:pointer}.sa-source-card{display:flex;align-items:center;padding:8px 10px;min-height:72px}.sa-source-logo-wrap{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding-right:16px}.sa-source-logo,.sa-source-logo-placeholder{width:48px;height:48px;border-radius:50%;object-fit:cover}.sa-source-logo-placeholder{display:flex;align-items:center;justify-content:center;background:rgba(128,128,128,.18);font-size:13px;font-weight:800;color:#777}.sa-source-info{min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center}.sa-images{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.sa-images img{display:block;max-width:180px;max-height:180px;width:auto;height:auto;object-fit:cover;border-radius:6px}.sa-card.selected{border-color:#1677ff}.sa-meta{font-size:10px;font-weight:700;color:#666;margin-bottom:3px}.sa-text{font-size:14px;white-space:pre-wrap}.sa-row{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}.sa-input,.sa-textarea,.sa-select{width:100%;box-sizing:border-box;border:1px solid #c8ccd1;border-radius:6px;padding:7px;background:#fff}.sa-textarea{min-height:264px;width:100%;max-width:100%;box-sizing:border-box;resize:vertical;font-size:14px}.sa-editor{overflow:hidden}.sa-editor-tools{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}.sa-tool-arrow{display:inline-block;margin-left:5px;font-size:11px;opacity:.75}.sa-image-add-row{display:flex;gap:6px;align-items:center;width:100%}.sa-image-add-row .sa-input{flex:1;min-width:0}.sa-add-image-btn{width:36px;height:36px;min-width:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:#72b886;color:#fff;cursor:pointer;box-shadow:0 1px 2px #0002}.sa-add-image-btn:hover{background:#63aa78}.sa-add-image-btn svg{width:15px;height:15px;fill:currentColor}.sa-tool-pop{display:none;position:absolute;z-index:10002;max-width:420px;max-height:220px;overflow:auto;padding:7px;border:1px solid #aaa;border-radius:7px;background:rgba(255,255,255,.96);box-shadow:0 8px 24px #0003}.sa-tool-pop.open{display:flex;gap:4px;flex-wrap:wrap}.sa-tool-item{cursor:pointer}.sa-editor-tools-wrap{position:relative}.sa-btn{border:1px solid #c8ccd1;border-radius:6px;padding:7px 9px;background:#f3f5f7;cursor:pointer}.sa-danger{color:#a51c1c}.sa-muted{color:#70757d}
 @media(max-width:1000px){.sa-grid,.sa-mod-grid{grid-template-columns:1fr}#socadmin-panel{width:calc(100vw - 16px)}}@media(prefers-color-scheme:dark){
 #socadmin-root{color:#f1f3f5}
 #socadmin-bar{background:rgba(25,26,28,.50);border-color:#555;box-shadow:0 2px 10px #0008}
@@ -375,53 +375,16 @@ export function renderModerationPanel(keepListScroll = true) {
 	state.selectedPost = selected ? postKey(selected) : null;
 	panelShell(`<div class="sa-mod-grid"><div class="sa-panel"><div class="sa-title">Зона модерации</div><div id="sa-mod" class="sa-list sa-mod-list"></div></div><div id="sa-editor"></div></div>`);
 	const box = document.getElementById("sa-mod");
-
-	if (!items.length) {
-		setHTML(box, `<div class="sa-empty sa-muted">В зоне модерации нет постов.</div>`);
-		renderModerationEditor(selected);
-		return;
-	}
-
-	const groups = new Map();
-	for (const p of items) {
-		const sourceUrl = String(p.sourceUrl || "").trim();
-		const groupKey = normalizeCommunityUrl(sourceUrl) || "__missing__";
-		if (!groups.has(groupKey)) groups.set(groupKey, { sourceUrl, posts: [] });
-		groups.get(groupKey).posts.push(p);
-	}
-
-	setHTML(box, Array.from(groups.values()).map((group) => {
-		const sourceKey = normalizeCommunityUrl(group.sourceUrl);
-		const source = (state.db.sources || []).find((s) => normalizeCommunityUrl(s?.url) === sourceKey);
-		const logo = sourceKey ? communityLogo(sourceKey) : "";
-		const name = source?.name || source?.alias || (sourceKey ? sourceKey : "Источник не указан");
-		const url = source?.url || group.sourceUrl || "";
-
-		return `<section class="sa-mod-group">
-			<div class="sa-mod-group-head">
-				${logo ? `<img class="sa-mod-group-logo" src="${esc(logo)}" alt="">` : `<div class="sa-mod-group-logo-placeholder">VK</div>`}
-				<div class="sa-mod-group-info">
-					<div class="sa-mod-group-name">${esc(name)}</div>
-					${url ? `<div class="sa-mod-group-url">${esc(url)}</div>` : ""}
-				</div>
-			</div>
-			<div class="sa-mod-group-posts">
-				${group.posts.map((p) => {
-					const key = postKey(p);
-					const queued = (state.db.publication || []).some((x) => postKey(x) === key);
-					return `<div class="sa-card ${key === state.selectedPost ? "selected" : ""} ${queued ? "sa-queued" : ""}" data-post="${esc(key)}">${renderModerationPreview(p)}${queued ? `<div class="sa-queued-note">✓ Отправлен в публикацию</div>` : ""}</div>`;
-				}).join("")}
-			</div>
-		</section>`;
-	}).join(""));
-
+	setHTML(box, items.length ? items.map((p) => {
+		const key = postKey(p);
+		const queued = (state.db.publication || []).some((x) => postKey(x) === key);
+		return `<div class="sa-card ${key === state.selectedPost ? "selected" : ""} ${queued ? "sa-queued" : ""}" data-post="${esc(key)}">${renderModerationPreview(p)}${queued ? `<div class="sa-queued-note">✓ Отправлен в публикацию</div>` : ""}</div>`;
+	}).join("") : `<div class="sa-empty sa-muted">В зоне модерации нет постов.</div>`);
 	if (savedScrollTop) box.scrollTop = savedScrollTop;
-
 	box.querySelectorAll("[data-post]").forEach((x) => x.onclick = () => {
 		state.selectedPost = x.dataset.post;
 		renderModerationPanel(true);
 	});
-
 	renderModerationEditor(selected);
 }
 

@@ -1,8 +1,3 @@
-const style = document.createElement('link');
-style.rel = 'stylesheet';
-style.href = browser.runtime.getURL('modal.css');
-document.head.appendChild(style);
-
 export async function showModal({
     title = 'Подтверждение',
     message = 'Вы уверены?',
