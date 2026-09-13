@@ -1,0 +1,25 @@
+{
+  "name": "socadminzilla",
+  "version": "1.0.0",
+  "description": "Firefox extension for VK community administration.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "vite build && node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jerrydeakins/socAdminZilla.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/jerrydeakins/socAdminZilla/issues"
+  },
+  "homepage": "https://github.com/jerrydeakins/socAdminZilla#readme",
+  "devDependencies": {
+    "vite": "^8.3.0"
+  }
+}

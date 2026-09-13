@@ -1,6 +1,5 @@
 (function() {
 	//#region src/app.js
-	console.log("[SocAdminZilla] Vite build content script START");
 	(() => {
 		if (window.top !== window.self) return;
 		const ROOT_ID = "socadmin-root";
