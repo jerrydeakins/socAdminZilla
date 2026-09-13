@@ -1,3 +1,14 @@
+import { icon } from "@fortawesome/fontawesome-svg-core";
+import {
+  faCheck,
+  faPenToSquare,
+  faImage,
+  faFont,
+  faTrash,
+  faWandMagicSparkles,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
+
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 export const uid = () => crypto.randomUUID();
 export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -21,8 +32,23 @@ export function setHTML(el, html) {
   el.replaceChildren(...Array.from(doc.body.childNodes));
 }
 
+const FONT_AWESOME_ICONS = {
+  check: faCheck,
+  edit: faPenToSquare,
+  image: faImage,
+  text: faFont,
+  trash: faTrash,
+  wand: faWandMagicSparkles,
+  xmark: faXmark,
+};
+
 export function faIcon(type) {
-  // SVG paths string mapping
+  const definition = FONT_AWESOME_ICONS[type];
+  if (!definition) return "";
+  return icon(definition, {
+    classes: ["sa-icon"],
+    attributes: { "aria-hidden": "true" },
+  }).html.join("");
 }
 
 export function normalizeCommunityUrl(url){
