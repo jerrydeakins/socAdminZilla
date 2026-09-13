@@ -2,6 +2,7 @@ import { state, ROOT_ID } from './state.js';
 import { esc, setHTML, uid, clampInt, isValidVKUrl, faIcon, postKey, publicationPreviewText } from './utils.js';
 import { save, communityLogo, fetchCommunityLogo, exportSettings, importSettings } from './storage.js';
 import { startFetch } from './scraper.js';
+import { showModal } from './ui/modal.js';
 
 export function style() {
 			if (document.getElementById("socadmin-style")) return;
@@ -349,34 +350,21 @@ export function renderModerationEditor(p) {
 			card.scrollIntoView({ block: "nearest" });
 		}
 	};
-	document.getElementById("sa-delete-post").onclick = () => {
-		const deleteButton = document.getElementById("sa-delete-post");
-		if (!deleteButton || deleteButton.dataset.confirming === "1") return;
-		deleteButton.dataset.confirming = "1";
-		deleteButton.disabled = true;
-		const row = deleteButton.closest(".sa-row");
-		if (!row) return;
-		const confirmWrap = document.createElement("span");
-		confirmWrap.className = "sa-delete-confirm";
-		confirmWrap.innerHTML = `<span>Удалить пост?</span><button type="button" class="sa-btn sa-danger" data-delete-confirm>Удалить</button><button type="button" class="sa-btn" data-delete-cancel>Отмена</button>`;
-		row.appendChild(confirmWrap);
-		const confirmButton = confirmWrap.querySelector("[data-delete-confirm]");
-		const cancelButton = confirmWrap.querySelector("[data-delete-cancel]");
-		confirmButton.onclick = async () => {
-			if (confirmButton.disabled) return;
-			confirmButton.disabled = true;
-			cancelButton.disabled = true;
-			const key = postKey(p);
-			state.db.posts = state.db.posts.filter((x) => postKey(x) !== key);
-			state.selectedPost = null;
-			await save();
-			renderModerationPanel();
-		};
-		cancelButton.onclick = () => {
-			confirmWrap.remove();
-			deleteButton.disabled = false;
-			deleteButton.dataset.confirming = "0";
-		};
+	document.getElementById("sa-delete-post").onclick = async () => {
+		const isConfirmed = await showModal({
+			title: "Удаление поста",
+			message: "Вы действительно хотите удалить этот пост из зоны модерации?",
+			confirmText: "Удалить",
+			cancelText: "Отмена"
+		});
+
+		if (!isConfirmed) return;
+
+		const key = postKey(p);
+		state.db.posts = state.db.posts.filter((x) => postKey(x) !== key);
+		state.selectedPost = null;
+		await save();
+		renderModerationPanel();
 	};
 }
 export function renderModerationPanel(keepListScroll = true) {
