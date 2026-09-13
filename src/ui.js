@@ -1,5 +1,5 @@
 import { state, ROOT_ID } from './state.js';
-import { esc, setHTML, uid, clampInt, isValidVKUrl, faIcon, postKey } from './utils.js';
+import { esc, setHTML, uid, clampInt, isValidVKUrl, faIcon, postKey, publicationPreviewText } from './utils.js';
 import { save, communityLogo, fetchCommunityLogo, exportSettings, importSettings } from './storage.js';
 import { startFetch } from './scraper.js';
 
