@@ -58,6 +58,7 @@ if (window.top === window.self) {
       });
       state.db.posts = state.db.posts.filter((existing) => !posts.some((incoming) => (existing.id || existing.post_id || existing.url) === (incoming.id || incoming.post_id || incoming.url))).concat(posts.map((p) => ({
         ...p,
+        sourceUrl: String(pending.sourceUrl || "").trim(),
         targetCommunity: p.targetCommunity || String((state.db.settings.homeCommunities || [])[0] || state.db.settings.homeCommunity || "").trim()
       })));
       await save();
