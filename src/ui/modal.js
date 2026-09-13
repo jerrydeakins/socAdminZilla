@@ -12,49 +12,60 @@ export async function showModal({
 
         dialog.innerHTML = `
             <div class="soc-admin-modal-content">
-                <h3 class="soc-admin-modal-title">${title}</h3>
-                <div class="soc-admin-modal-body">${message}</div>
+                <h3 class="soc-admin-modal-title"></h3>
+                <div class="soc-admin-modal-body"></div>
                 <div class="soc-admin-modal-actions">
-                    <button class="soc-admin-btn soc-admin-btn-cancel">${cancelText}</button>
-                    <button class="soc-admin-btn soc-admin-btn-confirm soc-admin-btn-danger">${confirmText}</button>
+                    <button class="soc-admin-btn soc-admin-btn-cancel" type="button">${cancelText}</button>
+                    <button class="soc-admin-btn soc-admin-btn-confirm soc-admin-btn-danger" type="button">${confirmText}</button>
                 </div>
             </div>
         `;
 
+        dialog.querySelector('.soc-admin-modal-title').textContent = title;
+        dialog.querySelector('.soc-admin-modal-body').textContent = message;
         document.body.appendChild(dialog);
 
         const confirmBtn = dialog.querySelector('.soc-admin-btn-confirm');
         const cancelBtn = dialog.querySelector('.soc-admin-btn-cancel');
-        let isClosing = false;
+        if (!cancelText) cancelBtn.hidden = true;
 
-        // Функция закрытия с защитой от двойного клика
+        let isClosing = false;
+        let fallbackTimer = null;
+
         const closeDialog = (result) => {
             if (isClosing) return;
             isClosing = true;
 
-            // Блокируем кнопки, чтобы предотвратить повторные нажатия
             confirmBtn.disabled = true;
             cancelBtn.disabled = true;
-
             dialog.classList.add('closing');
-            dialog.addEventListener('animationend', () => {
+
+            const finish = () => {
+                if (fallbackTimer) clearTimeout(fallbackTimer);
                 dialog.close();
                 dialog.remove();
                 resolve(result);
-            }, { once: true });
+            };
+
+            dialog.addEventListener('animationend', finish, { once: true });
+            fallbackTimer = setTimeout(finish, 250);
         };
 
         confirmBtn.addEventListener('click', () => closeDialog(true));
         cancelBtn.addEventListener('click', () => closeDialog(false));
 
-        // Закрытие при клике мимо окна
-        dialog.addEventListener('click', (e) => {
+        dialog.addEventListener('cancel', (event) => {
+            event.preventDefault();
+            closeDialog(false);
+        });
+
+        dialog.addEventListener('click', (event) => {
             const rect = dialog.getBoundingClientRect();
             const isInDialog = (
-                rect.top <= e.clientY && e.clientY <= rect.bottom &&
-                rect.left <= e.clientX && e.clientX <= rect.right
+                rect.top <= event.clientY && event.clientY <= rect.bottom &&
+                rect.left <= event.clientX && event.clientX <= rect.right
             );
-            
+
             if (!isInDialog) closeDialog(false);
         });
 
