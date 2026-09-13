@@ -43,9 +43,6 @@
         "https://vk.com/*",
         "https://vk.ru/*"
       ],
-      "css": [
-        "ui/modal.css" 
-      ],
       "js": [
         "content.js"
       ],
