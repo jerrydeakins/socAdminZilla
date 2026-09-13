@@ -8,6 +8,9 @@ export const clampInt = (value, min, max, fallback) => {
 };
 export const isValidVKUrl = url => /^https:\/\/vk\.(ru|com)\//i.test(String(url || ""));
 
+export const postKey = (post) =>
+  String(post?.id || post?.post_id || post?.url || "");
+  
 export function setHTML(el, html) {
   const doc = new DOMParser().parseFromString(String(html ?? ""), "text/html");
   el.replaceChildren(...Array.from(doc.body.childNodes));
