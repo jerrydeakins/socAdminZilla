@@ -1,12 +1,14 @@
 # SocAdmin
 
+[🇬🇧 English](README.md) · [🇷🇺 Русский](README.ru.md)
+
 Firefox extension for VK community administration.
 
 SocAdmin is a browser toolbar embedded directly into VK pages. It works with the authenticated VK web interface and does not use the VK API.
 
 ## Current version
 
-**1.0.0** — first stable browser-extension release.
+**1.0.1** — current stable browser-extension release.
 
 The current release provides:
 
@@ -20,6 +22,8 @@ The current release provides:
 - import/export of configuration;
 - operation only on `vk.ru` and `vk.com`.
 
+Version 1.0.1 also includes updated extension icons.
+
 ## Installation for development
 
 1. Open Firefox → `about:debugging`.
@@ -32,11 +36,24 @@ Temporary installation is intended for development. A signed self-distributed bu
 ## Project structure
 
 ```text
-SocAdmin/
-├── content/
-│   └── vk.js
-├── background.js
-├── manifest.json
+socAdminZilla/
+├── public/
+│   ├── icons/
+│   ├── background.js
+│   ├── main.css
+│   ├── modal.css
+│   └── manifest.json
+├── src/
+│   ├── content.js
+│   ├── mod-selection.js
+│   ├── scraper.js
+│   ├── state.js
+│   ├── storage.js
+│   ├── ui.js
+│   ├── utils.js
+│   └── ui/
+├── vite.config.mjs
+├── package.json
 └── README.md
 ```
 
