@@ -352,9 +352,12 @@ export function renderModerationPanel(keepListScroll = true) {
 		groups.get(groupKey).posts.push(p);
 	}
 
+	const hasSelection = (state.selectedPosts || []).length > 0;
 	setHTML(box, `<div class="sa-mod-selection-toolbar">
-		<label><input type="checkbox" data-mod-select-all> Выбрать все</label>
-		<button type="button" class="sa-btn" data-mod-clear-selection>Снять выбор</button>
+		${hasSelection
+			? `<button type="button" class="sa-btn" data-mod-clear-selection>Снять выделение</button>`
+			: `<label><input type="checkbox" data-mod-select-all> Выбрать все</label>`
+		}
 		<span class="sa-mod-selection-count" data-mod-selection-count></span>
 		<button type="button" class="sa-btn sa-danger" data-mod-delete-selected disabled>Удалить выбранные</button>
 	</div>` + Array.from(groups.values()).map((group) => {
