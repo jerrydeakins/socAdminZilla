@@ -1,13 +1,4 @@
-import { icon } from "@fortawesome/fontawesome-svg-core";
-import {
-  faCheck,
-  faPenToSquare,
-  faImage,
-  faFont,
-  faTrash,
-  faWandMagicSparkles,
-  faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { SVG_ICONS } from "virtual:svg-icons";
 
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
 export const uid = () => crypto.randomUUID();
@@ -32,23 +23,31 @@ export function setHTML(el, html) {
   el.replaceChildren(...Array.from(doc.body.childNodes));
 }
 
-const FONT_AWESOME_ICONS = {
-  check: faCheck,
-  edit: faPenToSquare,
-  image: faImage,
-  text: faFont,
-  trash: faTrash,
-  wand: faWandMagicSparkles,
-  xmark: faXmark,
-};
-
 export function faIcon(type) {
-  const definition = FONT_AWESOME_ICONS[type];
-  if (!definition) return "";
-  return icon(definition, {
-    classes: ["sa-icon"],
-    attributes: { "aria-hidden": "true" },
-  }).html.join("");
+  const svg = SVG_ICONS[type];
+  if (!svg) return "";
+
+  return svg.replace(
+    /<svg\b([^>]*)>/i,
+    (_, attributes) => {
+      let attrs = attributes;
+
+      if (/\bclass\s*=/i.test(attrs)) {
+        attrs = attrs.replace(
+          /\bclass\s*=\s*(["'])(.*?)\1/i,
+          (_, quote, classes) => `class=${quote}${classes} sa-icon${quote}`
+        );
+      } else {
+        attrs += ' class="sa-icon"';
+      }
+
+      if (!/\baria-hidden\s*=/i.test(attrs)) {
+        attrs += ' aria-hidden="true"';
+      }
+
+      return `<svg${attrs}>`;
+    }
+  );
 }
 
 export function normalizeCommunityUrl(url){
