@@ -62,3 +62,5 @@ socAdminZilla/
 The extension is intentionally implemented against stable DOM semantics exposed by VK where possible. Dynamic VK CSS class names should not be used as selectors when a semantic attribute, text, role or `data-testid` is available.
 
 Future improvements and discovered defects are tracked through GitHub Issues.
+
+Icon pack: https://www.runeicons.com/icons
