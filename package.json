@@ -1,0 +1,22 @@
+{
+  "name": "socadminzilla2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "vite.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.3.0",
+    "@fortawesome/free-solid-svg-icons": "^7.3.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0",
+    "vite-plugin-zip-pack": "^1.2.4"
+  }
+}
