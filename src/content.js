@@ -3,7 +3,6 @@ import { load, save } from './storage.js';
 import { render, positionPanel, alignVKHeader, mountRoot, renderPanel } from './ui.js';
 import { waitForCommunityAvatar, waitForPostContent, collectInThisTab } from './scraper.js';
 import { isValidVKUrl, clampInt } from './utils.js';
-import { installModerationSelection } from './mod-selection.js';
 
 if (window.top === window.self) {
   browser.runtime.onMessage.addListener(async msg => {
@@ -138,7 +137,6 @@ if (window.top === window.self) {
 
   (async () => {
     await load();
-    installModerationSelection();
     render();
     await resumePendingCollection();
     await resumeReturnNavigation();
