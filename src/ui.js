@@ -371,6 +371,8 @@ export function renderModerationPanel(keepListScroll = true) {
 	const oldBox = document.getElementById("sa-mod");
 	const savedScrollTop = keepListScroll && oldBox ? oldBox.scrollTop : 0;
 	const items = state.db.posts;
+	const validKeys = new Set(items.map(postKey).map(String));
+	state.selectedPosts = (state.selectedPosts || []).map(String).filter((key) => validKeys.has(key));
 	let selected = items.find((p) => postKey(p) === String(state.selectedPost)) || items[0] || null;
 	state.selectedPost = selected ? postKey(selected) : null;
 	panelShell(`<div class="sa-mod-grid"><div class="sa-panel"><div class="sa-title">Зона модерации</div><div id="sa-mod" class="sa-list sa-mod-list"></div></div><div id="sa-editor"></div></div>`);
@@ -390,12 +392,21 @@ export function renderModerationPanel(keepListScroll = true) {
 		groups.get(groupKey).posts.push(p);
 	}
 
-	setHTML(box, Array.from(groups.values()).map((group) => {
+	setHTML(box, `<div class="sa-mod-selection-toolbar">
+		<label><input type="checkbox" data-mod-select-all> Выбрать все</label>
+		<button type="button" class="sa-btn" data-mod-clear-selection>Снять выбор</button>
+		<span class="sa-mod-selection-count" data-mod-selection-count></span>
+		<button type="button" class="sa-btn sa-danger" data-mod-delete-selected disabled>Удалить выбранные</button>
+	</div>` + Array.from(groups.values()).map((group) => {
 		const sourceKey = normalizeCommunityUrl(group.sourceUrl);
 		const source = (state.db.sources || []).find((s) => normalizeCommunityUrl(s?.url) === sourceKey);
 		const logo = sourceKey ? communityLogo(sourceKey) : "";
 		const name = source?.name || source?.alias || (sourceKey ? sourceKey : "Источник не указан");
 		const url = source?.url || group.sourceUrl || "";
+
+		const groupKeys = group.posts.map(postKey).map(String);
+		const selectedKeys = new Set(state.selectedPosts || []);
+		const groupSelected = groupKeys.length > 0 && groupKeys.every((key) => selectedKeys.has(key));
 
 		return `<section class="sa-mod-group">
 			<div class="sa-mod-group-head">
@@ -404,12 +415,14 @@ export function renderModerationPanel(keepListScroll = true) {
 					<div class="sa-mod-group-name">${esc(name)}</div>
 					${url ? `<div class="sa-mod-group-url">${esc(url)}</div>` : ""}
 				</div>
+				<label class="sa-mod-group-select"><input type="checkbox" data-mod-group-select data-group-keys="${esc(JSON.stringify(groupKeys))}" ${groupSelected ? "checked" : ""}> Все</label>
 			</div>
 			<div class="sa-mod-group-posts">
 				${group.posts.map((p) => {
 					const key = postKey(p);
 					const queued = (state.db.publication || []).some((x) => postKey(x) === key);
-					return `<div class="sa-card ${key === state.selectedPost ? "selected" : ""} ${queued ? "sa-queued" : ""}" data-post="${esc(key)}">${renderModerationPreview(p)}${queued ? `<div class="sa-queued-note">✓ Отправлен в публикацию</div>` : ""}</div>`;
+					const checked = (state.selectedPosts || []).includes(String(key));
+					return `<div class="sa-card ${key === state.selectedPost ? "selected" : ""} ${queued ? "sa-queued" : ""}" data-post="${esc(key)}"><label class="sa-mod-post-select"><input type="checkbox" data-mod-post-select ${checked ? "checked" : ""}> Выбрать</label>${renderModerationPreview(p)}${queued ? `<div class="sa-queued-note">✓ Отправлен в публикацию</div>` : ""}</div>`;
 				}).join("")}
 			</div>
 		</section>`;
@@ -417,7 +430,82 @@ export function renderModerationPanel(keepListScroll = true) {
 
 	if (savedScrollTop) box.scrollTop = savedScrollTop;
 
-	box.querySelectorAll("[data-post]").forEach((x) => x.onclick = () => {
+	const selectionKeys = () => new Set((state.selectedPosts || []).map(String));
+	const rerenderSelection = () => renderModerationPanel(true);
+
+	const selectAll = box.querySelector("[data-mod-select-all]");
+	const allKeys = items.map(postKey).map(String);
+	if (selectAll) {
+		const selectedKeys = selectionKeys();
+		selectAll.checked = allKeys.length > 0 && allKeys.every((key) => selectedKeys.has(key));
+		selectAll.indeterminate = allKeys.some((key) => selectedKeys.has(key)) && !selectAll.checked;
+		selectAll.onchange = () => {
+			state.selectedPosts = selectAll.checked ? [...allKeys] : [];
+			rerenderSelection();
+		};
+	}
+
+	const count = box.querySelector("[data-mod-selection-count]");
+	if (count) count.textContent = `Выбрано: ${(state.selectedPosts || []).length}`;
+
+	box.querySelector("[data-mod-clear-selection]")?.addEventListener("click", () => {
+		state.selectedPosts = [];
+		rerenderSelection();
+	});
+
+	box.querySelector("[data-mod-delete-selected]")?.addEventListener("click", async (event) => {
+		const button = event.currentTarget;
+		const keys = [...(state.selectedPosts || [])].map(String);
+		if (!keys.length) return;
+		button.disabled = true;
+		try {
+			const isConfirmed = await showModal({
+				title: "Массовое удаление",
+				message: `Вы действительно хотите удалить выбранные посты (${keys.length}) из зоны модерации?`,
+				confirmText: "Удалить",
+				cancelText: "Отмена"
+			});
+			if (!isConfirmed) return;
+			const keySet = new Set(keys);
+			state.db.posts = state.db.posts.filter((post) => !keySet.has(String(postKey(post))));
+			if (state.selectedPost != null && keySet.has(String(state.selectedPost))) state.selectedPost = null;
+			state.selectedPosts = [];
+			await save();
+			renderModerationPanel();
+		} finally {
+			button.disabled = false;
+		}
+	});
+
+	box.querySelectorAll("[data-mod-group-select]").forEach((checkbox) => {
+		checkbox.indeterminate = JSON.parse(checkbox.dataset.groupKeys).some((key) => (state.selectedPosts || []).includes(String(key))) && !checkbox.checked;
+		checkbox.onclick = (event) => event.stopPropagation();
+		checkbox.onchange = () => {
+			const keys = JSON.parse(checkbox.dataset.groupKeys).map(String);
+			const selectedKeys = selectionKeys();
+			for (const key of keys) checkbox.checked ? selectedKeys.add(key) : selectedKeys.delete(key);
+			state.selectedPosts = [...selectedKeys];
+			rerenderSelection();
+		};
+	});
+
+	box.querySelectorAll("[data-mod-post-select]").forEach((checkbox) => {
+		checkbox.onclick = (event) => event.stopPropagation();
+		checkbox.onchange = () => {
+			const key = String(checkbox.closest("[data-post]").dataset.post);
+			const selectedKeys = selectionKeys();
+			if (checkbox.checked) selectedKeys.add(key);
+			else selectedKeys.delete(key);
+			state.selectedPosts = [...selectedKeys];
+			rerenderSelection();
+		};
+	});
+
+	const deleteButton = box.querySelector("[data-mod-delete-selected]");
+	if (deleteButton) deleteButton.disabled = !(state.selectedPosts || []).length;
+
+	box.querySelectorAll("[data-post]").forEach((x) => x.onclick = (event) => {
+		if (event.target.closest("input, label")) return;
 		state.selectedPost = x.dataset.post;
 		renderModerationPanel(true);
 	});
