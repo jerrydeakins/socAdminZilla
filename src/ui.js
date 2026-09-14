@@ -476,35 +476,53 @@ export function renderModerationPanel(keepListScroll = true) {
 	renderModerationEditor(selected);
 }
 
+function getReactProps(element) {
+	const key = Object.keys(element).find((key) =>
+		key.startsWith("__reactProps$")
+	);
+
+	return key ? element[key] : null;
+}
+
 async function hoverVKCreatePost() {
-	const createButton = [...document.querySelectorAll("#vkuiButton__content")]
-		.find((el) => {
-			const text = el.textContent.trim();
-			const rect = el.getBoundingClientRect();
-			return text.includes("Создать") &&
-				rect.width > 0 &&
-				rect.height > 0;
-		});
+	console.log("### hoverVKCreatePost START ###");
+
+	console.log("buttons:", document.querySelectorAll("button").length);
+
+	const createButton = [...document.querySelectorAll("button")]
+		.find((button) => button.textContent.trim() === "Создать");
+
+	console.log("createButton:", createButton);
 
 	if (!createButton) {
 		throw new Error("Не найдена кнопка «Создать» в VK.");
 	}
 
-	const hover = (element) => {
-		element.dispatchEvent(new MouseEvent("mouseover", {
-			bubbles: true,
-			cancelable: true,
-			view: window
-		}));
-		element.dispatchEvent(new MouseEvent("mouseenter", {
-			bubbles: false,
-			cancelable: true,
-			view: window
-		}));
-	};
+	const createParent = createButton.parentElement;
+	const createProps = getReactProps(createParent);
 
-	hover(createButton);
+	console.log("PARENT:", createParent);
+	console.log("REACT PROPS:", createProps);
+	console.log("ON MOUSE OVER:", createProps?.onMouseOver);
 
+	if (typeof createProps?.onMouseOver !== "function") {
+		throw new Error("Не найден обработчик наведения кнопки «Создать».");
+	}
+
+	// Открываем меню «Создать».
+	createProps.onMouseOver(new MouseEvent("mouseover", {
+		bubbles: true,
+		cancelable: true,
+		view: window
+	}));
+
+	console.log("EXTENSION TEST", {
+		key,
+		onMouseOver: typeof createProps?.onMouseOver,
+		aria: createParent?.getAttribute("aria-expanded")
+	});
+
+	// Ждём появления пункта «Пост».
 	const deadline = Date.now() + 3000;
 	let postItem = null;
 
@@ -526,7 +544,28 @@ async function hoverVKCreatePost() {
 		throw new Error("Не появился пункт «Пост» в меню VK.");
 	}
 
-	hover(postItem);
+	// Ищем React-обработчик наведения самого пункта «Пост».
+	let postElement = postItem;
+	let postProps = getReactProps(postElement);
+
+	while (
+		typeof postProps?.onMouseOver !== "function" &&
+		postElement.parentElement
+	) {
+		postElement = postElement.parentElement;
+		postProps = getReactProps(postElement);
+	}
+
+	if (typeof postProps?.onMouseOver !== "function") {
+		throw new Error("Не найден обработчик наведения пункта «Пост».");
+	}
+
+	// Наводим на «Пост».
+	postProps.onMouseOver(new MouseEvent("mouseover", {
+		bubbles: true,
+		cancelable: true,
+		view: window
+	}));
 
 	await new Promise((resolve) => setTimeout(resolve, 300));
 
