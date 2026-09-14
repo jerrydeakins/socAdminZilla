@@ -531,19 +531,6 @@
   cursor: default;
 }
 
-/*
- * Until at least one post is selected, only "Выбрать все" remains visible.
- */
-
-#sa-mod:not(:has([data-mod-post-select]:checked))
-  .sa-mod-selection-toolbar [data-mod-clear-selection],
-#sa-mod:not(:has([data-mod-post-select]:checked))
-  .sa-mod-selection-toolbar [data-mod-selection-count],
-#sa-mod:not(:has([data-mod-post-select]:checked))
-  .sa-mod-selection-toolbar [data-mod-delete-selected] {
-  display: none;
-}
-
 .sa-mod-selection-toolbar {
   flex-wrap: nowrap;
   overflow: hidden;
