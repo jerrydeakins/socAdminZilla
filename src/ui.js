@@ -476,6 +476,63 @@ export function renderModerationPanel(keepListScroll = true) {
 	renderModerationEditor(selected);
 }
 
+async function hoverVKCreatePost() {
+	const createButton = [...document.querySelectorAll("#vkuiButton__content")]
+		.find((el) => {
+			const text = el.textContent.trim();
+			const rect = el.getBoundingClientRect();
+			return text.includes("Создать") &&
+				rect.width > 0 &&
+				rect.height > 0;
+		});
+
+	if (!createButton) {
+		throw new Error("Не найдена кнопка «Создать» в VK.");
+	}
+
+	const hover = (element) => {
+		element.dispatchEvent(new MouseEvent("mouseover", {
+			bubbles: true,
+			cancelable: true,
+			view: window
+		}));
+		element.dispatchEvent(new MouseEvent("mouseenter", {
+			bubbles: false,
+			cancelable: true,
+			view: window
+		}));
+	};
+
+	hover(createButton);
+
+	const deadline = Date.now() + 3000;
+	let postItem = null;
+
+	while (Date.now() < deadline) {
+		postItem = [...document.querySelectorAll("*")]
+			.find((el) => {
+				if (el.textContent.trim() !== "Пост") return false;
+
+				const rect = el.getBoundingClientRect();
+				return rect.width > 0 && rect.height > 0;
+			});
+
+		if (postItem) break;
+
+		await new Promise((resolve) => setTimeout(resolve, 50));
+	}
+
+	if (!postItem) {
+		throw new Error("Не появился пункт «Пост» в меню VK.");
+	}
+
+	hover(postItem);
+
+	await new Promise((resolve) => setTimeout(resolve, 300));
+
+	return true;
+}
+
 export function renderPublicationPanel() {
 	const items = state.db.publication || [];
 	panelShell(`<div class="sa-panel"><div class="sa-title">Публикация</div><div class="sa-muted">Посты, подготовленные к публикации. Кнопки копирования используются как временный способ публикации.</div><div id="sa-publication-list" class="sa-list sa-publication-list" style="margin-top:7px"></div></div>`);
@@ -517,9 +574,24 @@ ${first ? `<img class="sa-pub-image" src="${esc(first)}" loading="lazy">` : ""}
 			if (status) status.textContent = text;
 		};
 		try {
-			const modal = document.querySelector("[data-testid=\"posting_modal_box\"][aria-modal=\"true\"]");
-			if (!modal) throw new Error("Открой в VK окно «Новый пост» и повтори.");
-			const textField = modal.querySelector("[data-testid=\"posting_base_screen_input_message\"][contenteditable=\"true\"]");
+			let modal = document.querySelector("[data-testid=\"posting_modal_box\"][aria-modal=\"true\"]");
+
+		if (!modal) {
+			await hoverVKCreatePost();
+
+			const deadline = Date.now() + 5000;
+			while (Date.now() < deadline) {
+				modal = document.querySelector("[data-testid=\"posting_modal_box\"][aria-modal=\"true\"]");
+				if (modal) break;
+				await new Promise((resolve) => setTimeout(resolve, 100));
+			}
+		}
+
+		if (!modal) {
+			throw new Error("Не удалось открыть окно «Новый пост» в VK.");
+		}
+
+		const textField = modal.querySelector("[data-testid=\"posting_base_screen_input_message\"][contenteditable=\"true\"]");
 			if (!textField) throw new Error("Не найдено поле текста в окне «Новый пост».");
 			textField.focus();
 			const text = String(p.text || "");
