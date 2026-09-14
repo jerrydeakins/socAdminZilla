@@ -1,5 +1,13 @@
 # Changelog
 
+[🇬🇧 English](CHANGELOG.md) · [🇷🇺 Русский](CHANGELOG.ru.md)
+
+## 1.0.1
+
+- Updated extension icons.
+- Improved the extension's VK interface integration.
+- Fixed and refined parts of the current 1.0.1 release.
+
 ## 1.0.0
 
 First stable Firefox extension release.
