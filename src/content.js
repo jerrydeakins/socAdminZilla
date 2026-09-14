@@ -3,7 +3,6 @@ import { load, save } from './storage.js';
 import { render, positionPanel, alignVKHeader, mountRoot, renderPanel } from './ui.js';
 import { waitForCommunityAvatar, waitForPostContent, collectInThisTab } from './scraper.js';
 import { isValidVKUrl, clampInt } from './utils.js';
-import './moderation-style.js';
 
 if (window.top === window.self) {
   browser.runtime.onMessage.addListener(async msg => {
