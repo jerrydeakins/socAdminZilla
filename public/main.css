@@ -1,16 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 /* ==========================================================================
    SocAdminZilla — Main UI
    ========================================================================== */
 
 #socadmin-root {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  z-index: 120;
-  box-sizing: border-box;
-  font: 13px system-ui, sans-serif;
-  color: #222;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    z-index: 120;
+    box-sizing: border-box;
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 13px;
+    color: #222;
 }
 
 /* ==========================================================================
@@ -539,6 +542,28 @@
 #sa-mod:not(:has([data-mod-post-select]:checked))
   .sa-mod-selection-toolbar [data-mod-delete-selected] {
   display: none;
+}
+
+.sa-mod-selection-toolbar {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.sa-mod-selection-toolbar > label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.sa-mod-selection-toolbar [data-mod-clear-selection] {
+  flex: 0 0 auto;
+}
+
+.sa-mod-selection-toolbar [data-mod-selection-count] {
+  flex: 0 0 auto;
+}
+
+.sa-mod-selection-toolbar [data-mod-delete-selected] {
+  flex: 0 0 auto;
 }
 
 /* ==========================================================================
