@@ -29,15 +29,37 @@ function addSelectionControls(box) {
   const toolbar = document.createElement('div');
   toolbar.className = 'sa-mod-selection-toolbar';
   toolbar.dataset.saSelectionToolbar = '1';
-  toolbar.innerHTML = `
-    <label class="sa-mod-selection-all">
-      <input type="checkbox" data-sa-select-all>
-      <span>Выбрать все</span>
-    </label>
-    <button type="button" class="sa-btn" data-sa-clear-selection>Снять выбор</button>
-    <span class="sa-mod-selection-count" data-sa-selection-count></span>
-    <button type="button" class="sa-btn sa-danger" data-sa-delete-selected disabled>Удалить выбранные</button>
-  `;
+
+  const allLabel = document.createElement('label');
+  allLabel.className = 'sa-mod-selection-all';
+
+  const allCheckbox = document.createElement('input');
+  allCheckbox.type = 'checkbox';
+  allCheckbox.dataset.saSelectAll = '';
+
+  const allText = document.createElement('span');
+  allText.textContent = 'Выбрать все';
+
+  allLabel.append(allCheckbox, allText);
+
+  const clearButton = document.createElement('button');
+  clearButton.type = 'button';
+  clearButton.className = 'sa-btn';
+  clearButton.dataset.saClearSelection = '';
+  clearButton.textContent = 'Снять выбор';
+
+  const count = document.createElement('span');
+  count.className = 'sa-mod-selection-count';
+  count.dataset.saSelectionCount = '';
+
+  const deleteButton = document.createElement('button');
+  deleteButton.type = 'button';
+  deleteButton.className = 'sa-btn sa-danger';
+  deleteButton.dataset.saDeleteSelected = '';
+  deleteButton.disabled = true;
+  deleteButton.textContent = 'Удалить выбранные';
+
+  toolbar.append(allLabel, clearButton, count, deleteButton);
   box.prepend(toolbar);
 
   const allKeys = () => (state.db.posts || []).map(postKey).map(String);
@@ -95,10 +117,17 @@ function addGroupSelectionControls(group) {
 
   const label = document.createElement('label');
   label.className = 'sa-mod-group-select';
-  label.innerHTML = `<input type="checkbox" data-sa-group-select aria-label="Выбрать все посты сообщества"> <span>Все</span>`;
-  header.append(label);
 
-  const checkbox = label.querySelector('input');
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.dataset.saGroupSelect = '';
+  checkbox.setAttribute('aria-label', 'Выбрать все посты сообщества');
+
+  const text = document.createElement('span');
+  text.textContent = 'Все';
+
+  label.append(checkbox, text);
+  header.append(label);
   checkbox.checked = keys.every((key) => selected.has(key));
   checkbox.indeterminate = keys.some((key) => selected.has(key)) && !checkbox.checked;
 
@@ -115,10 +144,14 @@ function addCardSelectionControl(card) {
   const key = String(card.dataset.post);
   const label = document.createElement('label');
   label.className = 'sa-mod-post-select';
-  label.innerHTML = `<input type="checkbox" data-sa-post-select aria-label="Выбрать пост">`;
-  card.prepend(label);
 
-  const checkbox = label.querySelector('input');
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.dataset.saPostSelect = '';
+  checkbox.setAttribute('aria-label', 'Выбрать пост');
+
+  label.append(checkbox);
+  card.prepend(label);
   checkbox.checked = selectedKeys().includes(key);
   checkbox.onclick = (event) => event.stopPropagation();
   checkbox.onchange = (event) => {

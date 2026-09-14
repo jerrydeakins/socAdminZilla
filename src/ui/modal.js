@@ -8,23 +8,36 @@ export async function showModal({
         const dialog = document.createElement('dialog');
         dialog.className = 'soc-admin-modal';
 
-        dialog.innerHTML = `
-            <div class="soc-admin-modal-content">
-                <h3 class="soc-admin-modal-title"></h3>
-                <div class="soc-admin-modal-body"></div>
-                <div class="soc-admin-modal-actions">
-                    <button class="soc-admin-btn soc-admin-btn-cancel" type="button">${cancelText}</button>
-                    <button class="soc-admin-btn soc-admin-btn-confirm soc-admin-btn-danger" type="button">${confirmText}</button>
-                </div>
-            </div>
-        `;
+        const content = document.createElement('div');
+        content.className = 'soc-admin-modal-content';
 
-        dialog.querySelector('.soc-admin-modal-title').textContent = title;
-        dialog.querySelector('.soc-admin-modal-body').textContent = message;
+        const titleElement = document.createElement('h3');
+        titleElement.className = 'soc-admin-modal-title';
+        titleElement.textContent = title;
+
+        const body = document.createElement('div');
+        body.className = 'soc-admin-modal-body';
+        body.textContent = message;
+
+        const actions = document.createElement('div');
+        actions.className = 'soc-admin-modal-actions';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'soc-admin-btn soc-admin-btn-cancel';
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = cancelText;
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className =
+            'soc-admin-btn soc-admin-btn-confirm soc-admin-btn-danger';
+        confirmBtn.type = 'button';
+        confirmBtn.textContent = confirmText;
+
+        actions.append(cancelBtn, confirmBtn);
+        content.append(titleElement, body, actions);
+        dialog.append(content);
+
         document.body.appendChild(dialog);
-
-        const confirmBtn = dialog.querySelector('.soc-admin-btn-confirm');
-        const cancelBtn = dialog.querySelector('.soc-admin-btn-cancel');
         if (!cancelText) cancelBtn.hidden = true;
 
         let isClosing = false;

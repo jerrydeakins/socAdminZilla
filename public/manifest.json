@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "SocAdmin DEV",
+  "name": "SocAdmin",
   "version": "1.0.1",
   "description": "Инструмент для администрирования сообществ ВКонтакте",
   
@@ -52,7 +52,7 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "socadmin-dev@jerrydeakins.github.io",
+      "id": "socadmin@jerrydeakins.github.io",
       "data_collection_permissions": {
         "required": [
           "none"
