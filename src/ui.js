@@ -385,7 +385,7 @@ export function renderModerationPanel(keepListScroll = true) {
 					const key = postKey(p);
 					const queued = (state.db.publication || []).some((x) => postKey(x) === key);
 					const checked = (state.selectedPosts || []).includes(String(key));
-					return `<div class="sa-card ${key === state.selectedPost ? "selected" : ""} ${queued ? "sa-queued" : ""}" data-post="${esc(key)}"><label class="sa-mod-post-select"><input type="checkbox" data-mod-post-select ${checked ? "checked" : ""}> Выбрать</label>${renderModerationPreview(p)}${queued ? `<div class="sa-queued-note">✓ Отправлен в публикацию</div>` : ""}</div>`;
+					return `<div class="sa-card ${key === state.selectedPost ? "selected" : ""} ${queued ? "sa-queued" : ""}" data-post="${esc(key)}"><label class="sa-mod-post-select"><input type="checkbox" data-mod-post-select ${checked ? "checked" : ""}></label>${renderModerationPreview(p)}${queued ? `<div class="sa-queued-note">✓ Отправлен в публикацию</div>` : ""}</div>`;
 				}).join("")}
 			</div>
 		</section>`;

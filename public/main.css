@@ -144,6 +144,8 @@
 
 .sa-title {
   margin-bottom: 7px;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -280,6 +282,7 @@
 
 .sa-text {
   font-size: 14px;
+  line-height: 1.25;
   white-space: pre-wrap;
 }
 
@@ -347,6 +350,7 @@
   overflow: hidden;
   opacity: .7;
   font-size: 11px;
+  color: #3b82f6;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
