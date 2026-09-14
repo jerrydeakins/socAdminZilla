@@ -3,23 +3,6 @@ import { save } from './storage.js';
 import { postKey } from './utils.js';
 import { showModal } from './ui/modal.js';
 
-const style = document.createElement('style');
-style.id = 'sa-moderation-selection-style';
-style.textContent = `
-.sa-mod-selection-toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:7px 8px;margin-bottom:6px;border:1px solid rgba(0,0,0,.12);border-radius:7px;background:rgba(255,255,255,.35)}
-.sa-mod-selection-all,.sa-mod-group-select,.sa-mod-post-select{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
-.sa-mod-selection-count{font-size:11px;font-weight:600;opacity:.75}
-.sa-mod-group-head{position:relative}
-.sa-mod-group-select{margin-left:auto;flex:0 0 auto;font-size:11px;font-weight:600}
-.sa-mod-post-select{margin:-2px 0 5px 0;font-size:11px;font-weight:600;opacity:.8}
-.sa-mod-post-select input,.sa-mod-group-select input,.sa-mod-selection-all input{margin:0}
-.sa-mod-selection-toolbar .sa-btn:disabled{opacity:.45;cursor:default}
-@media(prefers-color-scheme:dark){
-.sa-mod-selection-toolbar{background:rgba(46,48,51,.40);border-color:rgba(255,255,255,.14)}
-}
-`;
-document.documentElement.appendChild(style);
-
 let observer = null;
 let syncing = false;
 

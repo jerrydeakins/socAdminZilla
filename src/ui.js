@@ -42,7 +42,6 @@ export function createPanel() {
 	positionPanel();
 }
 export function render() {
-	style();
 	let root = document.getElementById(ROOT_ID);
 	if (!root) {
 		root = document.createElement("div");
