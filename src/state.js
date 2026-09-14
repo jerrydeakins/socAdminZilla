@@ -6,6 +6,7 @@ export const state = {
   db: { sources: [], posts: [], settings: { maxAge: 2 }, hashtags: [], emoji: [], templates: [] },
   selectedSource: null,
   selectedPost: null,
+  selectedPosts: [],
   job: null
 };
 
